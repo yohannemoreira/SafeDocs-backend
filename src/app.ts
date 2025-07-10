@@ -1,62 +1,85 @@
-import express, { Request, Response } from 'express';
+// Em um arquivo como /lib/api.ts
 
-const app = express();
+// Defina a URL base da sua API em um só lugar
+const baseURL = "";
 
-app.get('/users', (request, response) => {
-  return response.send('Hello World!');
-});
+// Para melhor autocompletar e segurança, podemos tipar os métodos HTTP
+type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
-app.listen(3000, () => {
-console.log('HTTP Server running!');
-});
-
-
-let baseURL = "";
-
-function generalFuncAPI(endPoit: String, method: String, parameters: [String: String], authorization: String){
-    let urlString = baseURL + endPoit;
-    let url = new URL(urlString);
-    var request = express.request
+// Definimos uma interface para os parâmetros da função para mantê-la organizada
+interface ApiRequestOptions {
+  endpoint: string;
+  method: HttpMethod;
+  parameters?: Record<string, unknown>;
+  authorization?: string;
 }
+// Forma de chamada é passando um APIRequestOptions : 
+export async function generalFuncAPI<T>({
+  endpoint,
+  method,
+  parameters,
+  authorization,
+}: ApiRequestOptions): Promise<T> {
+  const url = `${baseURL}${endpoint}`;
 
-/* func generalFuncAPI<T: Decodable>(returnType: T, endPoint: EndPoint, method: String, parameters: [String: String], authorization: String, completion: @escaping (Result<T, Error>) -> Void) where T : Decodable {
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  };
 
-        let urlString = baseURL + endPoint.rawValue
-        guard let url = URL(string: urlString) else { return }
+  // Adiciona o token de autorização se ele for fornecido
+  // Equivalente a: if(authorization != "")
+  if (authorization) {
+    headers['Authorization'] = `Bearer ${authorization}`;
+  }
 
-        var request = URLRequest(url: url)
-        request.httpMethod = method
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+  const config: RequestInit = {
+    method: method,
+    headers: headers,
+  };
 
-        if(authorization != ""){
-            request.setValue("Bearer (authorization)", forHTTPHeaderField: "Authorization")
-        }
+  // Adiciona o corpo (body) da requisição apenas se houver parâmetros
+  // e o método não for GET (que não deve ter corpo)
+  // Equivalente a: if(!parameters.isEmpty)
+  if (parameters && method !== 'GET') {
+    config.body = JSON.stringify(parameters); // Equivalente a: JSONSerialization.data
+  }
 
-        if(!parameters.isEmpty){
-            do {
-                let params = try JSONSerialization.data(withJSONObject: parameters)
-                request.httpBody = params
-            } catch let error {
-                print(error.localizedDescription)
-                return
-            }
-        }
-
-
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            if let error = error { //Se erro for nil, deu certo e ele não entra aqui
-                completion(.failure(error))
-                self.cuida1()
-            }
-            print(String(bytes: data!, encoding: .utf8) ?? "Nao teve data")
-            do {
-                let result = try JSONDecoder().decode(T.self, from: data!)
-                completion(.success(result))
-                self.cuida2()
-            } catch let err {
-                completion(.failure(err))
-                self.cuida3()
-            }
-
-        }.resume()
+  try {
+    // Realiza a requisição
+    // Equivalente a: URLSession.shared.dataTask
+    const response = await fetch(url, config);
+    
+    // O `cuida1()` do seu código original, que trata falhas, iria no bloco catch abaixo.
+    
+    // Verifica se a resposta HTTP foi bem-sucedida (status 2xx)
+    // Se não for, lança um erro para ser pego pelo bloco catch
+    if (!response.ok) {
+      // Tenta extrair uma mensagem de erro do corpo da resposta, se houver
+      const errorData = await response.json().catch(() => null);
+      const errorMessage = errorData?.message || `Erro na requisição: ${response.status} ${response.statusText}`;
+      throw new Error(errorMessage);
     }
+    
+    // O `cuida3()` do seu código, que trata erros de decodificação,
+    // também seria pego pelo bloco catch se response.json() falhar.
+
+    // Decodifica a resposta JSON para o tipo T genérico
+    // Equivalente a: JSONDecoder().decode(T.self, from: data!)
+    const result: T = await response.json();
+
+    // O `cuida2()` do seu código, que trata o sucesso, iria aqui.
+    // Ex: console.log("Requisição bem-sucedida!");
+
+    return result;
+
+  } catch (error) {
+    console.error('Falha na função da API:', error);
+    
+    // O `cuida1()` ou `cuida3()` iriam aqui para tratar o erro de forma global,
+    // como exibir uma notificação para o usuário.
+    // Ex: showErrorNotification(error.message);
+
+    // Lança o erro novamente para que a função que chamou a API possa tratá-lo também
+    throw error;
+  }
+}
