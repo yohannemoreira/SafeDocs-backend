@@ -38,7 +38,7 @@ export class S3Service {
     });
 
     const signedUrl = await getSignedUrl(this.s3Client, command, {
-      expiresIn: 3600, // A URL expira em 1 hora
+      expiresIn: 3600, // URL expira em 1 hora
     });
 
     return { signedUrl, key };
@@ -57,10 +57,8 @@ export class S3Service {
     try {
       await this.s3Client.send(command);
     } catch (error) {
-      // Opcional: Adicionar logging aqui para erros de deleção no S3
+      // Logging aqui para erros de deleção no S3
       console.error(`Erro ao deletar arquivo do S3: ${key}`, error);
-      // Mesmo com erro, podemos optar por não parar o fluxo para que o registro
-      // no banco ainda possa ser removido. Depende da regra de negócio.
     }
   }
 
@@ -75,7 +73,7 @@ export class S3Service {
       Key: key,
     });
 
-    // A URL de download expira em 1 hora por padrão.
+    // URL de download expira em 1 hora por padrão.
     const signedUrl = await getSignedUrl(this.s3Client, command, {
       expiresIn: 3600,
     });

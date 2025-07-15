@@ -14,9 +14,8 @@ export class AuthController {
    * Rota: POST /auth/register
    */
   @Post('register')
-  @HttpCode(HttpStatus.CREATED) // Retorna o status 201 Created em caso de sucesso
+  @HttpCode(HttpStatus.CREATED) // Retorna status 201
   async register(@Body() registerDto: RegisterDto): Promise<Omit<User, 'passwordHash'>> {
-    // O ValidationPipe (global) já validou o registerDto automaticamente
     return this.authService.register(registerDto);
   }
 
@@ -25,9 +24,8 @@ export class AuthController {
    * Rota: POST /auth/login
    */
   @Post('login')
-  @HttpCode(HttpStatus.OK) // Retorna o status 200 OK em caso de sucesso
+  @HttpCode(HttpStatus.OK) // Retorna status 200 OK 
   async login(@Body() loginDto: LoginDto): Promise<AuthResponseDto> {
-    // O ValidationPipe (global) já validou o loginDto automaticamente
     return this.authService.login(loginDto);
   }
 }

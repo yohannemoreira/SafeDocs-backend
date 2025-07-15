@@ -27,31 +27,31 @@ export class AuthService {
 
     // 2. O hashing da senha acontece automaticamente graças ao hook @BeforeInsert
     //    na nossa entidade User. Então, podemos simplesmente passar os dados.
-    //    (Se não tivéssemos o hook, hashearíamos a senha aqui com bcrypt)
+  
     
-    // 3. Cria o novo usuário
+    // Cria o novo usuário
     const newUser = await this.usersService.create(registerDto);
     
-    // Omitimos a senha do retorno por segurança
+    // Omite a senha do retorno por segurança
     const { passwordHash, ...result } = newUser;
     return result;
   }
 
   /**
-   * Valida as credenciais do usuário e, se bem-sucedido, retorna os dados do usuário e um token JWT.
+   * Valida as credenciais do usuário. Se bem-sucedido, retorna os dados do usuário e um token JWT.
    */
   async login(loginDto: LoginDto): Promise<AuthResponseDto> {
-    // 1. Valida as credenciais do usuário
+    // Valida as credenciais do usuário
     const user = await this.validateUser(loginDto.email, loginDto.password);
     
     if (!user) {
       throw new UnauthorizedException('Credenciais inválidas.');
     }
 
-    // 2. Cria o payload para o token JWT
+    // Cria o payload para o token JWT
     const payload = { email: user.email, sub: user.id };
 
-    // 3. Gera o token de acesso
+    // Gera o token de acesso
     const accessToken = this.jwtService.sign(payload);
 
     return {

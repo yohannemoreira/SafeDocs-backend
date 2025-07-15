@@ -24,14 +24,14 @@ import { JwtStrategy } from './strategies/jwt.strategy';
         // Pega o segredo do JWT do arquivo .env
         secret: configService.get<string>('JWT_SECRET'),
         signOptions: {
-          // Define o tempo de expiração do token (ex: 1 dia)
+          // Define o tempo de expiração do token
           expiresIn: configService.get<string>('JWT_EXPIRES_IN'),
         },
       }),
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy], // Registra o AuthService e nossa futura JwtStrategy
-  exports: [AuthService], // Exporta o AuthService para uso futuro, se necessário
+  providers: [AuthService, JwtStrategy],
+  exports: [AuthService], 
 })
 export class AuthModule {}
