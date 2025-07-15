@@ -15,7 +15,7 @@ export class AuthController {
    */
   @Post('register')
   @HttpCode(HttpStatus.CREATED) // Retorna o status 201 Created em caso de sucesso
-  async register(@Body() registerDto: RegisterDto): Promise<User> {
+  async register(@Body() registerDto: RegisterDto): Promise<Omit<User, 'passwordHash'>> {
     // O ValidationPipe (global) já validou o registerDto automaticamente
     return this.authService.register(registerDto);
   }

@@ -2,7 +2,7 @@ import { Injectable, ConflictException, UnauthorizedException } from '@nestjs/co
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
-import { UsersService } from '../users/users.service';
+import { UsersService } from '../users/user.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
@@ -18,7 +18,7 @@ export class AuthService {
   /**
    * Registra um novo usuário no sistema.
    */
-  async register(registerDto: RegisterDto): Promise<User> {
+  async register(registerDto: RegisterDto): Promise<Omit<User, 'passwordHash'>> {
     // 1. Verifica se já existe um usuário com o mesmo e-mail
     const existingUser = await this.usersService.findOneByEmail(registerDto.email);
     if (existingUser) {
@@ -33,8 +33,8 @@ export class AuthService {
     const newUser = await this.usersService.create(registerDto);
     
     // Omitimos a senha do retorno por segurança
-    delete newUser.passwordHash;
-    return newUser;
+    const { passwordHash, ...result } = newUser;
+    return result;
   }
 
   /**
@@ -53,9 +53,6 @@ export class AuthService {
 
     // 3. Gera o token de acesso
     const accessToken = this.jwtService.sign(payload);
-
-    // Remove a senha do objeto de usuário antes de retornar
-    delete user.passwordHash;
 
     return {
       user,

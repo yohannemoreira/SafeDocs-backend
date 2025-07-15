@@ -4,8 +4,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UsersModule } from '../users/users.module';
-import { DocumentsModule } from '../documents/documents.module';
+import { UsersModule } from '../users/user.module';
+import { DocumentsModule } from '../documents/document.module';
 import { SharedLinksModule } from '../shared-links/shared-links.module';
 
 // Importa as entidades para a configuração do TypeORM

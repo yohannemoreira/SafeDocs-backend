@@ -1,6 +1,6 @@
 import { User } from '../../users/entities/user.entity';
 
 export class AuthResponseDto {
-  user: User;
+  user: Omit<User, 'passwordHash'>;
   accessToken: string;
 }
