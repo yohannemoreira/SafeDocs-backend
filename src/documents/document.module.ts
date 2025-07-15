@@ -8,9 +8,10 @@ import { AwsModule } from '../common/aws/aws.module'; // 1. Importe o AwsModule
 @Module({
   imports: [
     TypeOrmModule.forFeature([Document]),
-    AwsModule, // 2. Adicione aos imports
+    AwsModule,
   ],
   providers: [DocumentsService],
   controllers: [DocumentsController],
+  exports: [DocumentsService], 
 })
 export class DocumentsModule {}

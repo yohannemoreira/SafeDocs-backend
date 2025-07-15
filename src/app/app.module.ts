@@ -7,6 +7,7 @@ import { AppService } from './app.service';
 import { UsersModule } from '../users/user.module';
 import { DocumentsModule } from '../documents/document.module';
 import { SharedLinksModule } from '../shared-links/shared-links.module';
+import { AuthModule } from '../auth/auth.module';
 
 // Importa as entidades para a configuração do TypeORM
 import { User } from '../users/entities/user.entity';
@@ -44,7 +45,7 @@ import { SharedLink } from '../shared-links/entities/shared-link.entity';
     UsersModule,
     DocumentsModule,
     SharedLinksModule,
-    // Futuramente, adicionaremos o AuthModule aqui
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
