@@ -8,6 +8,7 @@ import {
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { randomUUID } from 'crypto';
+import { Multer } from 'multer';
 
 @Injectable()
 export class S3Service {
@@ -87,4 +88,23 @@ export class S3Service {
 
     return signedUrl;
   }
+
+  async uploadFile(file: Multer.File): Promise<any> {
+    
+    let command = new PutObjectCommand({
+      Bucket: this.bucketName,
+      Key: file.originalname,
+      Body: file.buffer,
+      ContentType: file.mimetype,
+      ContentDisposition: 'inline',
+    });
+    try {
+      let s3Response = await this.s3Client.send(command);
+      return s3Response;
+    } catch (e) {
+      console.log(e); 
+    }
+      
+  }
+    
 }

@@ -18,40 +18,70 @@ export class DocumentsService {
     private readonly configService: ConfigService,
   ) {}
 
-  async createUploadUrl(file: Multer.File, userId: number) {
-    console.log(file);
-    const { originalname } = file;
 
-    return await this.s3_upload(
-      file.buffer,
-      this.configService.getOrThrow<string>('S3_BUCKET_NAME'),
-      originalname,
-      file.mimetype,
+  // async createUploadUrl(file: Multer.file, userId: number) {
+  async createUploadUrl(createDocumentDto: CreateDocumentDto, userId: number) {
+    // const { originalname: originalName, mimetype: fileType, size: fileSize } = file;
+    const { originalName, fileType, fileSize } = createDocumentDto;
+    console.log(originalName, "  ", fileType , "  ", fileSize);
+
+    // 1. Gera a URL pré-assinada e a chave do S3
+    const { signedUrl, key } = await this.s3Service.generatePresignedUploadUrl(
+      originalName,
+      fileType,
     );
-  }
 
-  async s3_upload(file, bucket, name, mimetype) {
-    const s3 = new AWS.S3({
-      accessKeyId: this.configService.getOrThrow<string>('AWS_ACCESS_KEY_ID'),
-      secretAccessKey: this.configService.getOrThrow<string>('AWS_SECRET_ACCESS_KEY')
+    // 2. Salva os metadados do documento no banco de dados
+    const newDocument = this.documentsRepository.create({
+      originalName,
+      fileType,
+      fileSize,
+      s3Key: key,
+      s3Bucket: this.configService.getOrThrow<string>('S3_BUCKET_NAME'),
+      user: { id: userId }, // Associa ao usuário logado
+      filename: key, // Usamos a chave do S3 como nome do arquivo
     });
-    // ARRUMAR ESSA LINHA DE CIMA PQ TÁ TUDO CAGADO
 
-    const params = {
-      Bucket: bucket,
-      Key: String(name),
-      Body: file,
-      ContentType: mimetype,
-      ContentDisposition: 'inline',
-    };
+    await this.documentsRepository.save(newDocument);
 
-    try {
-      let s3Response = await s3.upload(params).promise();
-      return s3Response;
-    } catch (e) {
-      console.log(e);
-    }
+    return { signedUrl };
   }
+
+
+  // async createUploadUrl2(file: Multer.File, userId: number) {
+  //   console.log(file);
+  //   const { originalname } = file;
+
+  //   return await this.s3_upload(
+  //     file.buffer,
+  //     this.configService.getOrThrow<string>('S3_BUCKET_NAME'),
+  //     originalname,
+  //     file.mimetype,
+  //   );
+  // }
+
+  // async s3_upload(file, bucket, name, mimetype) {
+  //   const s3 = new AWS.S3({
+  //     accessKeyId: this.configService.getOrThrow<string>('AWS_ACCESS_KEY_ID'),
+  //     secretAccessKey: this.configService.getOrThrow<string>('AWS_SECRET_ACCESS_KEY')
+  //   });
+  //   // ARRUMAR ESSA LINHA DE CIMA PQ TÁ TUDO CAGADO
+
+  //   const params = {
+  //     Bucket: bucket,
+  //     Key: String(name),
+  //     Body: file,
+  //     ContentType: mimetype,
+  //     ContentDisposition: 'inline',
+  //   };
+
+  //   try {
+  //     let s3Response = await s3.upload(params).promise();
+  //     return s3Response;
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
+  // }
 
   /**
    * Encontra todos os documentos de um usuário específico.

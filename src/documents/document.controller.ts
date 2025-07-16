@@ -13,12 +13,13 @@ export class DocumentsController {
   constructor(private readonly documentsService: DocumentsService) {}
 
   @Post('upload')
-  @UseInterceptors(FileInterceptor('file')) 
+  // @UseInterceptors(FileInterceptor('file')) 
   async getUploadUrl(
+    @Body() createDocumentDto: CreateDocumentDto,
     @CurrentUser() user: User,
-    @UploadedFile() file: Multer.File
+    // @UploadedFile() file: Multer.File
   ) {
-    return this.documentsService.createUploadUrl(file, user.id);
+    return this.documentsService.createUploadUrl(createDocumentDto, user.id);
   }
 
   @Get()
