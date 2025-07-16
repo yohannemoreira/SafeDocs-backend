@@ -5,9 +5,12 @@ import { Document } from './entities/document.entity';
 import { S3Service } from '../common/aws/s3.service';
 import { CreateDocumentDto } from './dto/create-document.dto';
 import { ConfigService } from '@nestjs/config';
+import { Multer } from 'multer';
+import * as AWS from 'aws-sdk';
 
 @Injectable()
 export class DocumentsService {
+
   constructor(
     @InjectRepository(Document)
     private readonly documentsRepository: Repository<Document>,
@@ -15,30 +18,39 @@ export class DocumentsService {
     private readonly configService: ConfigService,
   ) {}
 
-  async createUploadUrl(createDocumentDto: CreateDocumentDto, userId: number) {
-    const { originalName, fileType, fileSize } = createDocumentDto;
+  async createUploadUrl(file: Multer.File, userId: number) {
+    console.log(file);
+    const { originalname } = file;
 
-    // 1. Gera a URL pré-assinada e a chave do S3
-    const { signedUrl, key } = await this.s3Service.generatePresignedUploadUrl(
-      originalName,
-      fileType,
+    return await this.s3_upload(
+      file.buffer,
+      this.configService.getOrThrow<string>('S3_BUCKET_NAME'),
+      originalname,
+      file.mimetype,
     );
+  }
 
-    // 2. Salva os metadados do documento no banco de dados
-    const newDocument = this.documentsRepository.create({
-      originalName,
-      fileType,
-      fileSize,
-      s3Key: key,
-      s3Bucket: this.configService.getOrThrow<string>('S3_BUCKET_NAME'),
-      user: { id: userId }, // Associa ao usuário logado
-      filename: key, // Usamos a chave do S3 como nome do arquivo
+  async s3_upload(file, bucket, name, mimetype) {
+    const s3 = new AWS.S3({
+      accessKeyId: this.configService.getOrThrow<string>('AWS_ACCESS_KEY_ID'),
+      secretAccessKey: this.configService.getOrThrow<string>('AWS_SECRET_ACCESS_KEY')
     });
+    // ARRUMAR ESSA LINHA DE CIMA PQ TÁ TUDO CAGADO
 
-    await this.documentsRepository.save(newDocument);
+    const params = {
+      Bucket: bucket,
+      Key: String(name),
+      Body: file,
+      ContentType: mimetype,
+      ContentDisposition: 'inline',
+    };
 
-    // 3. Retorna a URL para o frontend
-    return { signedUrl };
+    try {
+      let s3Response = await s3.upload(params).promise();
+      return s3Response;
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   /**

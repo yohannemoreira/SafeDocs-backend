@@ -1,21 +1,24 @@
-import { Controller, Post, Body, UseGuards, Get, Param, Delete, HttpCode, HttpStatus, ParseIntPipe } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Get, Param, Delete, HttpCode, HttpStatus, ParseIntPipe, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { DocumentsService } from './document.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity';
 import { CreateDocumentDto } from './dto/create-document.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Multer } from 'multer';
 
 @Controller('documents')
 @UseGuards(JwtAuthGuard) 
 export class DocumentsController {
   constructor(private readonly documentsService: DocumentsService) {}
 
-  @Post('upload-url')
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('file')) 
   async getUploadUrl(
-    @Body() createDocumentDto: CreateDocumentDto,
     @CurrentUser() user: User,
+    @UploadedFile() file: Multer.File
   ) {
-    return this.documentsService.createUploadUrl(createDocumentDto, user.id);
+    return this.documentsService.createUploadUrl(file, user.id);
   }
 
   @Get()

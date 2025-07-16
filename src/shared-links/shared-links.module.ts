@@ -1,4 +1,3 @@
-
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SharedLink } from './entities/shared-link.entity';
@@ -11,7 +10,7 @@ import { AwsModule } from '../common/aws/aws.module'; // 2. Importe o AwsModule
   imports: [
     TypeOrmModule.forFeature([SharedLink]),
     DocumentsModule, // 3. Adicione aos imports para usar o DocumentsService
-    AwsModule,       // 4. Adicione para usar o S3Service
+    AwsModule, // 4. Adicione para usar o S3Service
   ],
   providers: [SharedLinksService],
   controllers: [SharedLinksController],

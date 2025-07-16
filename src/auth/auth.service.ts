@@ -1,4 +1,8 @@
-import { Injectable, ConflictException, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
@@ -18,20 +22,23 @@ export class AuthService {
   /**
    * Registra um novo usuário no sistema.
    */
-  async register(registerDto: RegisterDto): Promise<Omit<User, 'passwordHash'>> {
+  async register(
+    registerDto: RegisterDto,
+  ): Promise<Omit<User, 'passwordHash'>> {
     // 1. Verifica se já existe um usuário com o mesmo e-mail
-    const existingUser = await this.usersService.findOneByEmail(registerDto.email);
+    const existingUser = await this.usersService.findOneByEmail(
+      registerDto.email,
+    );
     if (existingUser) {
       throw new ConflictException('Já existe um usuário com este e-mail.');
     }
 
     // 2. O hashing da senha acontece automaticamente graças ao hook @BeforeInsert
     //    na nossa entidade User. Então, podemos simplesmente passar os dados.
-  
-    
+
     // Cria o novo usuário
     const newUser = await this.usersService.create(registerDto);
-    
+
     // Omite a senha do retorno por segurança
     const { passwordHash, ...result } = newUser;
     return result;
@@ -43,7 +50,7 @@ export class AuthService {
   async login(loginDto: LoginDto): Promise<AuthResponseDto> {
     // Valida as credenciais do usuário
     const user = await this.validateUser(loginDto.email, loginDto.password);
-    
+
     if (!user) {
       throw new UnauthorizedException('Credenciais inválidas.');
     }
@@ -63,7 +70,10 @@ export class AuthService {
   /**
    * Método auxiliar para validar se um usuário existe e se a senha está correta.
    */
-  async validateUser(email: string, pass: string): Promise<Omit<User, 'passwordHash'> | null> {
+  async validateUser(
+    email: string,
+    pass: string,
+  ): Promise<Omit<User, 'passwordHash'> | null> {
     const user = await this.usersService.findOneByEmail(email);
 
     if (user && (await bcrypt.compare(pass, user.passwordHash))) {
@@ -71,7 +81,7 @@ export class AuthService {
       const { passwordHash, ...result } = user;
       return result;
     }
-    
+
     return null;
   }
 }

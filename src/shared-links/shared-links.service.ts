@@ -20,7 +20,10 @@ export class SharedLinksService {
    */
   async create(documentId: number, userId: number): Promise<SharedLink> {
     // 1. Garante que o documento existe e pertence ao usuário.
-    const document = await this.documentsService.findOneByUser(documentId, userId);
+    const document = await this.documentsService.findOneByUser(
+      documentId,
+      userId,
+    );
 
     // 2. Gera um token seguro e aleatório.
     const token = randomBytes(32).toString('hex');
@@ -42,7 +45,9 @@ export class SharedLinksService {
   /**
    * Valida um token e retorna uma URL de download para o documento associado.
    */
-  async getDocumentUrlFromToken(token: string): Promise<{ downloadUrl: string }> {
+  async getDocumentUrlFromToken(
+    token: string,
+  ): Promise<{ downloadUrl: string }> {
     // 1. Encontra o link pelo token, incluindo o documento relacionado.
     const sharedLink = await this.sharedLinksRepository.findOne({
       where: { token },
@@ -59,14 +64,16 @@ export class SharedLinksService {
       await this.sharedLinksRepository.remove(sharedLink);
       throw new GoneException('Este link de compartilhamento expirou.'); // HTTP 410 Gone
     }
-    
+
     // 3. Opcional: Incrementa o contador de acessos.
     sharedLink.accessCount++;
     await this.sharedLinksRepository.save(sharedLink);
-    
+
     // 4. Gera a URL de download e a retorna.
-    const downloadUrl = await this.s3Service.generatePresignedDownloadUrl(sharedLink.document.s3Key);
-    
+    const downloadUrl = await this.s3Service.generatePresignedDownloadUrl(
+      sharedLink.document.s3Key,
+    );
+
     return { downloadUrl };
   }
 }

@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, Post, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { SharedLinksService } from './shared-links.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -20,7 +29,10 @@ export class SharedLinksController {
     @Body() createSharedLinkDto: CreateSharedLinkDto,
     @CurrentUser() user: User,
   ) {
-    return this.sharedLinksService.create(createSharedLinkDto.documentId, user.id);
+    return this.sharedLinksService.create(
+      createSharedLinkDto.documentId,
+      user.id,
+    );
   }
 
   /**

@@ -6,12 +6,9 @@ import { DocumentsController } from './document.controller';
 import { AwsModule } from '../common/aws/aws.module'; // 1. Importe o AwsModule
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Document]),
-    AwsModule,
-  ],
+  imports: [TypeOrmModule.forFeature([Document]), AwsModule],
   providers: [DocumentsService],
   controllers: [DocumentsController],
-  exports: [DocumentsService], 
+  exports: [DocumentsService],
 })
 export class DocumentsModule {}

@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { RegisterDto } from '../auth/dto/register.dto'; // Usamos o RegisterDto para a criação inicial
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -11,12 +12,20 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) {}
 
-  /**
-   * Cria um novo usuário. O DTO de registro é compatível.
-   */
-  async create(userData: Partial<User>): Promise<User> {
-    const user = this.usersRepository.create(userData);
-    return this.usersRepository.save(user);
+  async create(registerDto: RegisterDto): Promise<User> {
+    // 2. Hasheia a senha antes de criar o usuário
+    const hashedPassword = await bcrypt.hash(registerDto.password, 10);
+
+    // 3. Cria a entidade com os dados e a senha hasheada
+    const userToSave = this.usersRepository.create({
+      ...registerDto,
+      passwordHash: hashedPassword,
+    });
+
+    // 4. Salva o usuário no banco
+    const savedUser = await this.usersRepository.save(userToSave);
+
+    return savedUser;
   }
 
   /**

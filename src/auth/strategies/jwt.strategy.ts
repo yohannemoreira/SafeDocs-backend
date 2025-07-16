@@ -11,7 +11,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private readonly configService: ConfigService,
     private readonly usersService: UsersService,
   ) {
-    
     const secret = configService.get<string>('JWT_SECRET');
 
     // Lançamos um erro se o segredo JWT não estiver definido,
@@ -24,20 +23,25 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
       // Agora usamos a variável 'secret' que já foi validada
-      secretOrKey: secret, 
+      secretOrKey: secret,
     });
 
     // ---- FIM DA ALTERAÇÃO ----
   }
 
-  async validate(payload: { sub: number; email: string }): Promise<Omit<User, 'passwordHash'>> {
+  async validate(payload: {
+    sub: number;
+    email: string;
+  }): Promise<Omit<User, 'passwordHash'>> {
     const user = await this.usersService.findOneById(payload.sub);
 
     if (!user) {
-      throw new UnauthorizedException('Token inválido ou usuário não encontrado.');
+      throw new UnauthorizedException(
+        'Token inválido ou usuário não encontrado.',
+      );
     }
 
     const { passwordHash, ...userWithoutPassword } = user;
-    return userWithoutPassword; 
+    return userWithoutPassword;
   }
 }

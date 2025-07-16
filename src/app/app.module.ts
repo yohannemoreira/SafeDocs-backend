@@ -15,7 +15,6 @@ import { User } from '../users/entities/user.entity';
 import { Document } from '../documents/entities/document.entity';
 import { SharedLink } from '../shared-links/entities/shared-link.entity';
 
-
 @Module({
   imports: [
     //Configura o módulo de variáveis de ambiente para ser global

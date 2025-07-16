@@ -15,7 +15,9 @@ export class AuthController {
    */
   @Post('register')
   @HttpCode(HttpStatus.CREATED) // Retorna status 201
-  async register(@Body() registerDto: RegisterDto): Promise<Omit<User, 'passwordHash'>> {
+  async register(
+    @Body() registerDto: RegisterDto,
+  ): Promise<Omit<User, 'passwordHash'>> {
     return this.authService.register(registerDto);
   }
 
@@ -24,7 +26,7 @@ export class AuthController {
    * Rota: POST /auth/login
    */
   @Post('login')
-  @HttpCode(HttpStatus.OK) // Retorna status 200 OK 
+  @HttpCode(HttpStatus.OK) // Retorna status 200 OK
   async login(@Body() loginDto: LoginDto): Promise<AuthResponseDto> {
     return this.authService.login(loginDto);
   }
