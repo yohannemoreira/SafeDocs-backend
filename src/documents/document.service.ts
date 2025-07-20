@@ -47,42 +47,6 @@ export class DocumentsService {
     return { signedUrl };
   }
 
-
-  // async createUploadUrl2(file: Multer.File, userId: number) {
-  //   console.log(file);
-  //   const { originalname } = file;
-
-  //   return await this.s3_upload(
-  //     file.buffer,
-  //     this.configService.getOrThrow<string>('S3_BUCKET_NAME'),
-  //     originalname,
-  //     file.mimetype,
-  //   );
-  // }
-
-  // async s3_upload(file, bucket, name, mimetype) {
-  //   const s3 = new AWS.S3({
-  //     accessKeyId: this.configService.getOrThrow<string>('AWS_ACCESS_KEY_ID'),
-  //     secretAccessKey: this.configService.getOrThrow<string>('AWS_SECRET_ACCESS_KEY')
-  //   });
-  //   // ARRUMAR ESSA LINHA DE CIMA PQ TÁ TUDO CAGADO
-
-  //   const params = {
-  //     Bucket: bucket,
-  //     Key: String(name),
-  //     Body: file,
-  //     ContentType: mimetype,
-  //     ContentDisposition: 'inline',
-  //   };
-
-  //   try {
-  //     let s3Response = await s3.upload(params).promise();
-  //     return s3Response;
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  // }
-
   /**
    * Encontra todos os documentos de um usuário específico.
    */
