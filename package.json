@@ -17,15 +17,19 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "lambda:test": "cd lambda/health-monitor && node index.js",
+    "lambda:deploy": "cd lambda/health-monitor && powershell -ExecutionPolicy Bypass -File deploy.ps1",
+    "lambda:deploy-bash": "cd lambda/health-monitor && bash deploy.sh"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.844.0",
+    "@aws-sdk/client-s3": "^3.850.0",
     "@aws-sdk/s3-request-presigner": "^3.844.0",
     "@nestjs/common": "^11.1.3",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.1.3",
     "@nestjs/jwt": "^11.0.0",
+    "@nestjs/mapped-types": "*",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/typeorm": "^11.0.0",

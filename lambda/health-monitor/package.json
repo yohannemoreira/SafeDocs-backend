@@ -1,0 +1,12 @@
+{
+  "name": "safedocs-health-monitor",
+  "version": "1.0.0",
+  "description": "Health monitoring for SafeDocs API",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "dependencies": {},
+  "author": "SafeDocs",
+  "license": "MIT"
+}

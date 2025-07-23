@@ -13,9 +13,18 @@ async function bootstrap() {
     }),
   );
 
-  // CORS permissivo para desenvolvimento
+  // CORS configurado para desenvolvimento e produção
   app.enableCors({
-    origin: true, 
+    origin: [
+      'http://localhost:3001',
+      'http://localhost:3002',
+      'http://127.0.0.1:3001',
+      'http://127.0.0.1:3002',
+      'https://safedocs-test.loca.lt', // Adicionar sua URL do localtunnel
+      /\.loca\.lt$/, // Permitir qualquer subdomínio do localtunnel
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
   });
 

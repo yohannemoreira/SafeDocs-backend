@@ -14,6 +14,7 @@ import { AwsModule } from '../common/aws/aws.module';
 import { User } from '../users/entities/user.entity';
 import { Document } from '../documents/entities/document.entity';
 import { SharedLink } from '../shared-links/entities/shared-link.entity';
+import { HealthModule } from 'src/health/health.module';
 
 @Module({
   imports: [
@@ -35,18 +36,21 @@ import { SharedLink } from '../shared-links/entities/shared-link.entity';
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_DATABASE'),
         entities: [User, Document, SharedLink],
-        // Sincroniza o schema do banco com as entidades.
-        // Usar 'true' apenas em desenvolvimento. Em produção, use migrações.
+        // Configuração SSL para RDS
+        ssl: configService.get<string>('DB_HOST')?.includes('rds.amazonaws.com') ? {
+          rejectUnauthorized: false
+        } : false,
+        // Sincronização do banco de dados
         synchronize: configService.get<string>('NODE_ENV') !== 'production',
       }),
     }),
 
-    // Importa os módulos de funcionalidades da aplicação
     UsersModule,
     DocumentsModule,
     SharedLinksModule,
     AuthModule,
     AwsModule,
+    HealthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
