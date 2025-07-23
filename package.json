@@ -20,7 +20,15 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "lambda:test": "cd lambda/health-monitor && node index.js",
     "lambda:deploy": "cd lambda/health-monitor && powershell -ExecutionPolicy Bypass -File deploy.ps1",
-    "lambda:deploy-bash": "cd lambda/health-monitor && bash deploy.sh"
+    "lambda:deploy-bash": "cd lambda/health-monitor && bash deploy.sh",
+    "docker:build": "docker-compose build",
+    "docker:start": "docker-compose up -d",
+    "docker:dev": "docker-compose -f docker-compose.dev.yml up -d",
+    "docker:stop": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:restart": "npm run docker:stop && npm run docker:start",
+    "tunnel:install": "npm install -g localtunnel",
+    "tunnel:start": "lt --port 3000 --subdomain safedocs-test"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.850.0",

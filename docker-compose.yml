@@ -1,0 +1,44 @@
+services:
+  # Aplicação SafeDocs
+  safedocs-backend:
+    build: .
+    container_name: safedocs-backend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      # Variáveis do banco de dados (AWS RDS)
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_DATABASE=${DB_DATABASE}
+      # Variáveis do S3
+      - AWS_REGION=${AWS_REGION}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - S3_BUCKET_NAME=${S3_BUCKET_NAME}
+      - S3_BUCKET_URL=${S3_BUCKET_URL}
+    env_file:
+      - .env
+    volumes:
+      # Volume para logs (opcional)
+      - ./logs:/app/logs
+    networks:
+      - safedocs-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  safedocs-network:
+    driver: bridge
+
+volumes:
+  logs:
+    driver: local
